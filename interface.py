@@ -4,7 +4,7 @@ import numpy as np
 from jeuDeLaVie import World
 from time import sleep
 
-SHOWN_CHARACTER = '.'
+SHOWN_CHARACTER = 'o'
 def draw_menu(stdscr):
     k = 0
     height, width = stdscr.getmaxyx()
@@ -29,16 +29,28 @@ def draw_menu(stdscr):
             it = iter(w)
             k2 = -1 
             stdscr.nodelay(True)
-            while k2 != ord('q'):
+            delay = 0.1
+            while k2 != ord(' '):
                 stdscr.clear()
                 next(it)
                 for i in range(width):
                     for j in range(height):
                         if w.cases[j,i]:
                             stdscr.addstr(j,i,SHOWN_CHARACTER)
+                options = [
+                        'espace : stoper la simulation',
+                        'flèche droite/gauche : accélerer/ralentir'
+                        ]
+                for i, desc in enumerate(options):
+                    stdscr.addstr(height-i-1, 0, desc)
+
                 k2 = stdscr.getch()
+                if k2 == curses.KEY_RIGHT:
+                    delay/=2
+                elif k2 == curses.KEY_LEFT:
+                    delay*=2
                 stdscr.refresh()
-                sleep(0.1)
+                sleep(delay)
             stdscr.nodelay(False)
 
         curses.curs_set(2)
@@ -67,14 +79,21 @@ def draw_menu(stdscr):
             else:
                 stdscr.addstr(cursor_y,cursor_x,SHOWN_CHARACTER)
 
-        elif k == 263:
+        elif k == curses.KEY_BACKSPACE:
             stdscr.clear()
-
-        stdscr.move(cursor_y, cursor_x)
 
 
         # Refresh the screen
         stdscr.refresh()
+        options = [
+                'q : quitter', 
+                'espace : ajouter/enlever une cellule', 
+                'retour arrière : effacer l\'écran',
+                'entrée : lancer la simulation',
+                ]
+        for i, desc in enumerate(options):
+            stdscr.addstr(height-i-1, 0, desc)
+        stdscr.move(cursor_y, cursor_x)
 
         # Wait for next input
         k = stdscr.getch()
